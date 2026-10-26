@@ -1,0 +1,20 @@
+# dependencies
+node_modules/
+
+# build output
+dist/
+.astro/
+
+# environment variables
+.env
+.env.*
+!.env.example
+
+# macOS
+.DS_Store
+
+# editors
+.idea/
+
+# archived Nuxt version (too large for GitHub; keep locally)
+web-nuxt-version.zip

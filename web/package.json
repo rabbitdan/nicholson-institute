@@ -1,0 +1,27 @@
+{
+  "name": "regular-rotation",
+  "type": "module",
+  "version": "0.0.1",
+  "engines": {
+    "node": ">=22.23.4"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "typegen": "npm --prefix ../studio run typegen",
+    "check": "astro check",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/vue": "^7.1.2",
+    "@sanity/client": "^8.11.0",
+    "astro": "^7.4.2",
+    "groq": "^6.20.0",
+    "vue": "^3.5.44"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.12",
+    "typescript": "^6.0.3"
+  }
+}

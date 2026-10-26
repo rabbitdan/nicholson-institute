@@ -1,0 +1,101 @@
+---
+import Layout from '../../layouts/Layout.astro'
+import ImageCarousel from '../../components/ImageCarousel.vue'
+import AudioPlayer from '../../components/AudioPlayer.vue'
+import { sanityClient } from '../../lib/sanity'
+import { COLLECTION_ITEM_QUERY, COLLECTION_ITEM_SLUGS_QUERY } from '../../lib/queries'
+import { portableTextToHtml } from '../../lib/portableText'
+
+// TODO: language comes from the route once language URLs exist. English only for now.
+const language = 'en'
+
+export async function getStaticPaths() {
+  const slugs = await sanityClient.fetch(COLLECTION_ITEM_SLUGS_QUERY, { language: 'en' })
+  return slugs.map((slug) => ({ params: { slug } }))
+}
+
+const { slug } = Astro.params
+
+// The result type comes from TypeGen (sanity.types.ts), so no hand-written type is needed.
+const item = await sanityClient.fetch(COLLECTION_ITEM_QUERY, { language, slug: slug ?? '' })
+
+// Every path comes from getStaticPaths, so a missing item is a build error, not a 404.
+if (!item) throw new Error(`Collection item not found: ${slug}`)
+
+// "1 May 1957 - Derek Johnson": show only the parts that exist. UTC so the day does not shift with the timezone.
+const date = item.date
+  ? new Date(item.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })
+  : ''
+const byline = [date, item.author].filter(Boolean).join(' - ')
+---
+
+<Layout title={item.title}>
+  <article class="item">
+    <div class="text">
+      <h1>{item.title}</h1>
+      {byline && <p class="byline">{byline}</p>}
+      <div class="description" set:html={portableTextToHtml(item.longDescription)} />
+      {
+        item.audioFiles?.length ? (
+          <ul class="audio">
+            {item.audioFiles.map((file, index) => (
+              <li>
+                <AudioPlayer client:visible src={file.url} title={file.title ?? `Sound ${index + 1}`} />
+              </li>
+            ))}
+          </ul>
+        ) : null
+      }
+    </div>
+    <ImageCarousel client:load images={item.images} />
+  </article>
+</Layout>
+
+<style>
+  .item {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 3rem;
+    padding-block: 3rem;
+  }
+
+  @media (min-width: 64rem) {
+    .item {
+      grid-template-columns: 778fr 773fr;
+      gap: 78px;
+    }
+  }
+
+  h1 {
+    margin: 0;
+    font-size: 40px;
+    font-weight: 700;
+    line-height: normal;
+    text-transform: uppercase;
+  }
+
+  .byline {
+    margin: 1rem 0 0;
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: normal;
+  }
+
+  .description {
+    margin-top: 1rem;
+    font-size: 1rem;
+    line-height: normal;
+  }
+
+  .description :global(p) {
+    margin: 0 0 1.5em;
+  }
+
+  .audio {
+    display: grid;
+    gap: 1.5rem;
+    margin: 3rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+</style>
