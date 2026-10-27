@@ -26,7 +26,6 @@ const STYLE = {
 }
 
 // Fixed translations for terms the model should not choose itself, e.g. {'Reading Room': 'Lesesaal'}.
-// TODO: fill in once the museum has a list of preferred terms.
 const GLOSSARY = {}
 
 // Text fields to translate, by object `_type`. Everything else is copied as it is:

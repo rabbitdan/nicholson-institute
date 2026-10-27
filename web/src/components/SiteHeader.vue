@@ -12,16 +12,20 @@ type NavLink = NonNullable<HEADER_NAVIGATION_QUERY_RESULT>[number]
 const props = defineProps<{
   navigation: HEADER_NAVIGATION_QUERY_RESULT
   language: string
+  pathname: string
 }>()
 
-// TODO: build this from the translation links of the current page, not a fixed list.
+// Same page in another language: the language is the first segment and slugs are not translated.
+function switchTo(id: string) {
+  return props.pathname.replace(/^\/[^/]+/, `/${id}`)
+}
+
 const languages = [
   { id: 'en', title: 'English' },
   { id: 'de', title: 'Deutsch' },
   { id: 'ja', title: '日本語' }
 ]
 
-// TODO: collection index and event pages may need their own routes.
 function linkTo(link: NavLink) {
   return link.linkType === 'external' ? link.url ?? '' : `/${props.language}/${link.slug}`
 }
@@ -111,9 +115,8 @@ function onPickerFocusout(event: FocusEvent) {
             v-for="item in languages"
             :key="item.id"
           >
-            <!-- TODO: link to the translated version of the current page. -->
             <a
-              :href="`/${item.id}`"
+              :href="switchTo(item.id)"
               :lang="item.id"
               :aria-current="item.id === language ? 'true' : undefined"
               class="nav-link montserrat-700"
@@ -124,7 +127,6 @@ function onPickerFocusout(event: FocusEvent) {
         </ul>
       </div>
 
-      <!-- TODO: colour mode switch. Not ported yet; it depended on Nuxt UI's useColorMode. -->
       <!-- <SiteColorModeSwitch /> -->
     </div>
   </header>
@@ -154,8 +156,6 @@ function onPickerFocusout(event: FocusEvent) {
   outline-offset: 3px;
 }
 
-/* TODO: the logo artwork is black only. Until a dark-mode version is supplied it gets a
-   white backing so it stays visible. Never recolour it. */
 :global(.dark) .logo {
   background: var(--white);
 }

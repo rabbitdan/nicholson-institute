@@ -32,7 +32,7 @@ const footer = await sanityClient.fetch(FOOTER_QUERY, { language })
     <div class="site">
       <a href="#main" class="skip-link">Skip to main content</a>
       <!-- client:load because the language picker needs JS. -->
-      <SiteHeader client:load navigation={navigation} language={language} />
+      <SiteHeader client:load navigation={navigation} language={language} pathname={Astro.url.pathname} />
       <main id="main">
         <slot />
       </main>

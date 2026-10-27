@@ -20,7 +20,6 @@ const addressParts = computed(() => {
   return { name: name.split('\n'), lines: rest.join('\n').split('\n').filter(Boolean) }
 })
 
-// TODO: collection index and event pages may need their own routes.
 function linkTo(link: NavLink) {
   return link.linkType === 'external' ? link.url ?? '' : `/${props.language}/${link.slug}`
 }

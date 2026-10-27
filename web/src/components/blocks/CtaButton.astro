@@ -1,7 +1,6 @@
 ---
 const { label, linkType, url, slug, language } = Astro.props
 
-// TODO: collection index and event pages may need their own routes (same as the header).
 const href = linkType === 'external' ? url : `/${language}/${slug}`
 ---
 

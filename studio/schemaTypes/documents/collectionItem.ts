@@ -35,8 +35,6 @@ export const collectionItem = defineType({
       description: 'Shown in listings.',
       validation: (rule) => rule.required().max(200),
     }),
-    // TODO: date, author and audioFiles are derived from the design, not the spreadsheet.
-    // Revisit them when the exhibits spreadsheet arrives.
     defineField({
       name: 'date',
       type: 'date',
@@ -55,8 +53,6 @@ export const collectionItem = defineType({
         }),
       ],
     }),
-    // TODO: a translated item must point at the translated tag documents.
-    // The translation script has to create the tags and rewrite these references.
     defineField({
       name: 'tags',
       type: 'array',

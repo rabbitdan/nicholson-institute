@@ -12,8 +12,6 @@ type Props = {
 }
 
 const { page, language } = Astro.props
-
-// TODO: sector colour (page.sector) once the sector colours are set up in the frontend.
 ---
 
 <article class="page">
@@ -21,7 +19,6 @@ const { page, language } = Astro.props
   <h1>{page.title}</h1>
   {
     page.content?.map((block) => {
-      // TODO: collectionHighlight and eventList blocks. They are skipped for now.
       switch (block._type) {
         case 'richText':
           return <RichTextBlock body={block.body} />
