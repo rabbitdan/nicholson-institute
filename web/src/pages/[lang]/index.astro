@@ -1,0 +1,25 @@
+---
+import Layout from '../../layouts/Layout.astro'
+import PageView from '../../components/PageView.astro'
+import { languages } from '../../lib/languages'
+import { sanityClient } from '../../lib/sanity'
+import { HOME_LANGUAGES_QUERY, HOME_SLUG, PAGE_QUERY } from '../../lib/queries'
+
+// The home page is a page document with the slug "home". Only the languages that have one get a URL.
+export async function getStaticPaths() {
+  const homeLanguages = await sanityClient.fetch(HOME_LANGUAGES_QUERY, { languages })
+  return homeLanguages.map((lang) => ({ params: { lang } }))
+}
+
+// getStaticPaths only produces the languages in the list, so this is always a string.
+const language = Astro.params.lang as string
+
+const page = await sanityClient.fetch(PAGE_QUERY, { language, slug: HOME_SLUG })
+
+// Every path comes from getStaticPaths, so a missing page is a build error, not a 404.
+if (!page) throw new Error(`Home page not found: ${language}`)
+---
+
+<Layout title={page.title} language={language}>
+  <PageView page={page} language={language} />
+</Layout>

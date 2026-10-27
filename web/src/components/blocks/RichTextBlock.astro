@@ -1,0 +1,13 @@
+---
+import { portableTextToHtml } from '../../lib/portableText'
+
+const { body } = Astro.props
+---
+
+<div class="rich-text" set:html={portableTextToHtml(body)} />
+
+<style>
+  .rich-text :global(p) {
+    margin: 0 0 1.5em;
+  }
+</style>

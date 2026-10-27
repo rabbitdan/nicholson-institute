@@ -1,0 +1,43 @@
+---
+const { heading, text, image } = Astro.props
+---
+
+<aside class="callout">
+  {image?.url && <img src={`${image.url}?w=600`} alt={image.alt ?? ''} loading="lazy" />}
+  <div>
+    <h2>{heading}</h2>
+    <p>{text}</p>
+  </div>
+</aside>
+
+<style>
+  .callout {
+    display: grid;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    border: 3px solid currentColor;
+  }
+
+  @media (min-width: 48rem) {
+    .callout:has(img) {
+      grid-template-columns: 1fr 2fr;
+      align-items: center;
+    }
+  }
+
+  img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+  }
+
+  p {
+    margin: 0.5rem 0 0;
+  }
+</style>

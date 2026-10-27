@@ -1,0 +1,26 @@
+---
+import Layout from '../../layouts/Layout.astro'
+import PageView from '../../components/PageView.astro'
+import { languages } from '../../lib/languages'
+import { sanityClient } from '../../lib/sanity'
+import { PAGE_PATHS_QUERY, PAGE_QUERY } from '../../lib/queries'
+
+// Only the languages that have the page get a URL, so a missing translation is a 404.
+export async function getStaticPaths() {
+  const paths = await sanityClient.fetch(PAGE_PATHS_QUERY, { languages })
+  return paths.map(({ language, slug }) => ({ params: { lang: language, slug } }))
+}
+
+const { slug } = Astro.params
+// getStaticPaths only produces the languages in the list, so this is always a string.
+const language = Astro.params.lang as string
+
+const page = await sanityClient.fetch(PAGE_QUERY, { language, slug: slug ?? '' })
+
+// Every path comes from getStaticPaths, so a missing page is a build error, not a 404.
+if (!page) throw new Error(`Page not found: ${language}/${slug}`)
+---
+
+<Layout title={page.title} language={language}>
+  <PageView page={page} language={language} />
+</Layout>

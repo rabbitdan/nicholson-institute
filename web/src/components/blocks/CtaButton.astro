@@ -1,0 +1,24 @@
+---
+const { label, linkType, url, slug, language } = Astro.props
+
+// TODO: collection index and event pages may need their own routes (same as the header).
+const href = linkType === 'external' ? url : `/${language}/${slug}`
+---
+
+<a class="button" href={href}>{label}</a>
+
+<style>
+  .button {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    background: var(--page-text);
+    color: var(--page-bg);
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .button:focus-visible {
+    outline: 3px solid var(--page-text);
+    outline-offset: 3px;
+  }
+</style>

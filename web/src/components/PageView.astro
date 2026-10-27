@@ -1,0 +1,61 @@
+---
+import RichTextBlock from './blocks/RichTextBlock.astro'
+import ImageBlock from './blocks/ImageBlock.astro'
+import CalloutBlock from './blocks/CalloutBlock.astro'
+import CtaButton from './blocks/CtaButton.astro'
+import type { PAGE_QUERY_RESULT } from '../../sanity.types'
+
+// The body of a page document. Used by the home page and by every other page.
+type Props = {
+  page: NonNullable<PAGE_QUERY_RESULT>
+  language: string
+}
+
+const { page, language } = Astro.props
+
+// TODO: sector colour (page.sector) once the sector colours are set up in the frontend.
+---
+
+<article class="page">
+  {page.hero?.url && <img class="hero" src={`${page.hero.url}?w=1600`} alt={page.hero.alt ?? ''} />}
+  <h1>{page.title}</h1>
+  {
+    page.content?.map((block) => {
+      // TODO: collectionHighlight and eventList blocks. They are skipped for now.
+      switch (block._type) {
+        case 'richText':
+          return <RichTextBlock body={block.body} />
+        case 'imageBlock':
+          return <ImageBlock image={block.image} caption={block.caption} />
+        case 'callout':
+          return <CalloutBlock heading={block.heading} text={block.text} image={block.image} />
+        case 'ctaButton':
+          return <CtaButton label={block.label} linkType={block.linkType} url={block.url} slug={block.slug} language={language} />
+      }
+    })
+  }
+</article>
+
+<style>
+  .page {
+    display: grid;
+    gap: 2rem;
+    padding-block: 3rem;
+  }
+
+  .hero {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 30rem;
+    object-fit: cover;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: 40px;
+    font-weight: 700;
+    line-height: normal;
+    text-transform: uppercase;
+  }
+</style>
