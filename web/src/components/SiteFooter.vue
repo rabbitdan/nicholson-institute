@@ -10,10 +10,8 @@ type NavLink = NonNullable<NonNullable<FOOTER_QUERY_RESULT>['navigation']>[numbe
 // The data is fetched in the Astro layout and passed in as a prop.
 const props = defineProps<{
   footer: FOOTER_QUERY_RESULT
+  language: string
 }>()
-
-// TODO: language comes from the route once language URLs exist. English only for now.
-const language = 'en'
 
 // The address field is one block of text. A blank line separates the
 // museum name from the street address.
@@ -24,7 +22,7 @@ const addressParts = computed(() => {
 
 // TODO: collection index and event pages may need their own routes.
 function linkTo(link: NavLink) {
-  return link.linkType === 'external' ? link.url ?? '' : `/${language}/${link.slug}`
+  return link.linkType === 'external' ? link.url ?? '' : `/${props.language}/${link.slug}`
 }
 </script>
 
@@ -33,8 +31,9 @@ function linkTo(link: NavLink) {
     v-if="footer"
     class="site-footer monsterrat-400"
   >
-    <a
-      href="/"
+  <div class="row">
+  <a
+      :href="`/${language}`"
       class="logo"
     >
       <img
@@ -85,20 +84,23 @@ function linkTo(link: NavLink) {
         </template>
       </p>
     </address>
-    <p>Please note: Translations are produced by AI</p>
+    </div>
+    <p class="translation-disclaimer">Please note: Translations are produced by AI</p>
   </footer>
 </template>
 
 <style scoped>
 /* White on Brick is very high contrast (about 14:1, to be recorded in docs/contrast.md). */
 .site-footer {
+  background: var(--brick);
+  color: var(--white);
+  padding: 2rem;
+}
+.site-footer .row {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
   align-items: center;
   gap: 2rem;
-  padding: 1.5rem;
-  background: var(--brick);
-  color: var(--white);
   font-size: 1rem;
   font-weight: 600;
   line-height: 1.5;
@@ -155,5 +157,13 @@ function linkTo(link: NavLink) {
 .link-list a:focus-visible {
   outline: 3px solid #fff;
   outline-offset: 3px;
+}
+
+.translation-disclaimer {
+  display: block;
+  font-size: 0.75rem;
+  font-style: italic;
+  margin-top: 1rem;
+  width: 100%;
 }
 </style>

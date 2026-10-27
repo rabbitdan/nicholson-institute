@@ -9,12 +9,10 @@ import type { HEADER_NAVIGATION_QUERY_RESULT } from '../../sanity.types'
 type NavLink = NonNullable<HEADER_NAVIGATION_QUERY_RESULT>[number]
 
 // The data is fetched in the Astro layout and passed in as a prop.
-defineProps<{
+const props = defineProps<{
   navigation: HEADER_NAVIGATION_QUERY_RESULT
+  language: string
 }>()
-
-// TODO: language comes from the route once language URLs exist. English only for now.
-const language = 'en'
 
 // TODO: build this from the translation links of the current page, not a fixed list.
 const languages = [
@@ -25,7 +23,7 @@ const languages = [
 
 // TODO: collection index and event pages may need their own routes.
 function linkTo(link: NavLink) {
-  return link.linkType === 'external' ? link.url ?? '' : `/${language}/${link.slug}`
+  return link.linkType === 'external' ? link.url ?? '' : `/${props.language}/${link.slug}`
 }
 
 const pickerOpen = ref(false)
@@ -51,7 +49,7 @@ function onPickerFocusout(event: FocusEvent) {
 <template>
   <header class="site-header montserrat-400">
     <a
-      href="/"
+      :href="`/${language}`"
       class="logo"
     >
       <span class="logo-crop">

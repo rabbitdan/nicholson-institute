@@ -55,3 +55,37 @@ export const COLLECTION_ITEMS_QUERY = defineQuery(`
     "image": images[0]{alt, "url": coalesce(asset->url, "")}
   }
 `)
+
+// The home page is the page document with this slug. It is served at /{language}/, not /{language}/home.
+export const HOME_SLUG = 'home'
+
+// Every page document that has a slug, in the site's languages. The collection index has its own
+// slug but its own route, so a page called "collection" would clash with it and is left out.
+export const PAGE_PATHS_QUERY = defineQuery(`
+  *[_type == "page" && language in $languages && defined(slug.current) && !(slug.current in ["collection", "home"])]{
+    language,
+    "slug": slug.current
+  }
+`)
+
+// The languages that have a home page.
+export const HOME_LANGUAGES_QUERY = defineQuery(`
+  *[_type == "page" && language in $languages && slug.current == "home"].language
+`)
+
+// The blocks are projected by type. collectionHighlight and eventList only return _key and _type for now.
+export const PAGE_QUERY = defineQuery(`
+  *[_type == "page" && language == $language && slug.current == $slug][0]{
+    title,
+    sector,
+    "hero": hero{alt, "url": coalesce(asset->url, "")},
+    content[]{
+      _key,
+      _type,
+      _type == "richText" => {body},
+      _type == "imageBlock" => {caption, "image": image{alt, "url": coalesce(asset->url, "")}},
+      _type == "callout" => {heading, text, "image": image{alt, "url": coalesce(asset->url, "")}},
+      _type == "ctaButton" => {label, linkType, url, "slug": internal->slug.current}
+    }
+  }
+`)

@@ -641,6 +641,90 @@ export type COLLECTION_ITEMS_QUERY_RESULT = Array<{
   } | null;
 }>;
 
+// Source: ../web/src/lib/queries.ts
+// Variable: PAGE_PATHS_QUERY
+// Query: *[_type == "page" && language in $languages && defined(slug.current) && !(slug.current in ["collection", "home"])]{    language,    "slug": slug.current  }
+export type PAGE_PATHS_QUERY_RESULT = Array<{
+  language: string | null;
+  slug: string;
+}>;
+
+// Source: ../web/src/lib/queries.ts
+// Variable: HOME_LANGUAGES_QUERY
+// Query: *[_type == "page" && language in $languages && slug.current == "home"].language
+export type HOME_LANGUAGES_QUERY_RESULT = Array<string | null>;
+
+// Source: ../web/src/lib/queries.ts
+// Variable: PAGE_QUERY
+// Query: *[_type == "page" && language == $language && slug.current == $slug][0]{    title,    sector,    "hero": hero{alt, "url": coalesce(asset->url, "")},    content[]{      _key,      _type,      _type == "richText" => {body},      _type == "imageBlock" => {caption, "image": image{alt, "url": coalesce(asset->url, "")}},      _type == "callout" => {heading, text, "image": image{alt, "url": coalesce(asset->url, "")}},      _type == "ctaButton" => {label, linkType, url, "slug": internal->slug.current}    }  }
+export type PAGE_QUERY_RESULT = {
+  title: string;
+  sector: "generic" | "library" | "museum";
+  hero: {
+    alt: string;
+    url: string | "";
+  } | null;
+  content: Array<
+    | {
+        _key: string;
+        _type: "callout";
+        heading: string;
+        text: string;
+        image: {
+          alt: string;
+          url: string | "";
+        } | null;
+      }
+    | {
+        _key: string;
+        _type: "collectionHighlight";
+      }
+    | {
+        _key: string;
+        _type: "ctaButton";
+        label: string;
+        linkType: "external" | "internal";
+        url: string;
+        slug: string;
+      }
+    | {
+        _key: string;
+        _type: "eventList";
+      }
+    | {
+        _key: string;
+        _type: "imageBlock";
+        caption: string | null;
+        image: {
+          alt: string;
+          url: string | "";
+        };
+      }
+    | {
+        _key: string;
+        _type: "richText";
+        body: Array<{
+          children?: Array<{
+            marks?: Array<string>;
+            text?: string;
+            _type: "span";
+            _key: string;
+          }>;
+          style?: "h2" | "h3" | "normal";
+          listItem?: "bullet" | "number";
+          markDefs?: Array<{
+            href: string;
+            _type: "link";
+            _key: string;
+          }>;
+          level?: number;
+          _type: "block";
+          _key: string;
+        }>;
+      }
+  > | null;
+} | null;
+
 // Query TypeMap
 declare global {
   interface SanityQueries {
@@ -650,6 +734,9 @@ declare global {
     '\n  *[_type == "collectionItem" && language == $language && slug.current == $slug][0]{\n    title,\n    date,\n    author,\n    longDescription,\n    "images": images[]{alt, "url": coalesce(asset->url, "")},\n    "audioFiles": audioFiles[]{title, "url": coalesce(asset->url, "")}\n  }\n': COLLECTION_ITEM_QUERY_RESULT;
     '\n  *[_type == "collectionIndex" && language == $language][0]{title, intro}\n': COLLECTION_INDEX_QUERY_RESULT;
     '\n  *[_type == "collectionItem" && language == $language && defined(slug.current)] | order(title asc){\n    title,\n    "slug": slug.current,\n    shortDescription,\n    date,\n    author,\n    "tags": tags[]->{title, "slug": slug.current},\n    "image": images[0]{alt, "url": coalesce(asset->url, "")}\n  }\n': COLLECTION_ITEMS_QUERY_RESULT;
+    '\n  *[_type == "page" && language in $languages && defined(slug.current) && !(slug.current in ["collection", "home"])]{\n    language,\n    "slug": slug.current\n  }\n': PAGE_PATHS_QUERY_RESULT;
+    '\n  *[_type == "page" && language in $languages && slug.current == "home"].language\n': HOME_LANGUAGES_QUERY_RESULT;
+    '\n  *[_type == "page" && language == $language && slug.current == $slug][0]{\n    title,\n    sector,\n    "hero": hero{alt, "url": coalesce(asset->url, "")},\n    content[]{\n      _key,\n      _type,\n      _type == "richText" => {body},\n      _type == "imageBlock" => {caption, "image": image{alt, "url": coalesce(asset->url, "")}},\n      _type == "callout" => {heading, text, "image": image{alt, "url": coalesce(asset->url, "")}},\n      _type == "ctaButton" => {label, linkType, url, "slug": internal->slug.current}\n    }\n  }\n': PAGE_QUERY_RESULT;
   }
 }
 // Lets @sanity/client releases that predate the global registry read it too

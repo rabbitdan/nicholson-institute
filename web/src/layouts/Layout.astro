@@ -7,19 +7,17 @@ import { HEADER_NAVIGATION_QUERY, FOOTER_QUERY } from '../lib/queries'
 
 type Props = {
   title: string
+  language: string
 }
 
-const { title } = Astro.props
-
-// TODO: language comes from the route once language URLs exist. English only for now.
-const language = 'en'
+const { title, language } = Astro.props
 
 const navigation = await sanityClient.fetch(HEADER_NAVIGATION_QUERY, { language })
 const footer = await sanityClient.fetch(FOOTER_QUERY, { language })
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang={language}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -34,12 +32,12 @@ const footer = await sanityClient.fetch(FOOTER_QUERY, { language })
     <div class="site">
       <a href="#main" class="skip-link">Skip to main content</a>
       <!-- client:load because the language picker needs JS. -->
-      <SiteHeader client:load navigation={navigation} />
+      <SiteHeader client:load navigation={navigation} language={language} />
       <main id="main">
         <slot />
       </main>
       <!-- No client directive: the footer is static HTML. -->
-      <SiteFooter footer={footer} />
+      <SiteFooter footer={footer} language={language} />
     </div>
   </body>
 </html>
