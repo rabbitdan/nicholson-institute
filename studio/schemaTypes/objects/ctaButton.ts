@@ -46,6 +46,7 @@ export const ctaButton = defineType({
     }),
   ],
   preview: {
-    select: {title: 'label', subtitle: 'linkType'},
+    select: {title: 'label'},
+    prepare: ({title}) => ({title, subtitle: 'Button'}),
   },
 })

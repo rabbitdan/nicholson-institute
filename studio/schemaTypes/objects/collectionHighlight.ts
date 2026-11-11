@@ -17,7 +17,7 @@ export const collectionHighlight = defineType({
     select: {title: 'heading', items: 'items'},
     prepare: ({title, items}) => ({
       title: title || 'Collection highlight',
-      subtitle: `${items?.length ?? 0} items`,
+      subtitle: `Collection highlight · ${items?.length ?? 0} items`,
     }),
   },
 })

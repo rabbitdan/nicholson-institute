@@ -12,6 +12,7 @@ export const callout = defineType({
     imageField('image', 'Image (optional)'),
   ],
   preview: {
-    select: {title: 'heading', subtitle: 'text', media: 'image'},
+    select: {title: 'heading', media: 'image'},
+    prepare: ({title, media}) => ({title, subtitle: 'Callout', media}),
   },
 })

@@ -32,7 +32,7 @@ export const eventList = defineType({
     select: {title: 'heading', sector: 'sector'},
     prepare: ({title, sector}) => ({
       title: title || 'Event list',
-      subtitle: sector ? `Sector: ${sector}` : 'All sectors',
+      subtitle: `Event list · ${sector ? `sector: ${sector}` : 'all sectors'}`,
     }),
   },
 })
