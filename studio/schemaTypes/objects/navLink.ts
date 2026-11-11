@@ -25,7 +25,7 @@ export const navLink = defineType({
       name: 'internal',
       title: 'Page',
       type: 'reference',
-      to: [{type: 'page'}, {type: 'collectionIndex'}, {type: 'event'}],
+      to: [{type: 'page'}, {type: 'collectionIndex'}, {type: 'event'}, {type: 'legalPage'}],
       hidden: ({parent}) => parent?.linkType !== 'internal',
       validation: (rule) =>
         rule.custom((value, {parent}) =>

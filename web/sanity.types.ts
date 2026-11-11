@@ -57,12 +57,69 @@ export type EventReference = {
   [internalGroqTypeReferenceTo]?: "event";
 };
 
+export type LegalPageReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "legalPage";
+};
+
 export type NavLink = {
   _type: "navLink";
   label: string;
   linkType: "internal" | "external";
-  internal: PageReference | CollectionIndexReference | EventReference;
-  url: string;
+  internal?:
+    | PageReference
+    | CollectionIndexReference
+    | EventReference
+    | LegalPageReference;
+  url?: string;
+};
+
+export type HomeHeroItem = {
+  _type: "homeHeroItem";
+  heading: string;
+  text?: string;
+  image: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt: string;
+    _type: "image";
+  };
+  linkType: "internal" | "external";
+  internal?:
+    | PageReference
+    | CollectionIndexReference
+    | EventReference
+    | LegalPageReference;
+  url?: string;
+};
+
+export type HomeHero = {
+  _type: "homeHero";
+  items: Array<
+    {
+      _key: string;
+    } & HomeHeroItem
+  >;
+};
+
+export type SanityImageCrop = {
+  _type: "sanity.imageCrop";
+  top: number;
+  bottom: number;
+  left: number;
+  right: number;
+};
+
+export type SanityImageHotspot = {
+  _type: "sanity.imageHotspot";
+  x: number;
+  y: number;
+  height: number;
+  width: number;
 };
 
 export type EventList = {
@@ -93,8 +150,12 @@ export type CtaButton = {
   _type: "ctaButton";
   label: string;
   linkType: "internal" | "external";
-  internal: PageReference | CollectionIndexReference | EventReference;
-  url: string;
+  internal?:
+    | PageReference
+    | CollectionIndexReference
+    | EventReference
+    | LegalPageReference;
+  url?: string;
 };
 
 export type Callout = {
@@ -187,6 +248,7 @@ export type InternationalizedArrayReferenceValue = {
   _type: "internationalizedArrayReferenceValue";
   value?:
     | PageReference
+    | LegalPageReference
     | EventReference
     | CollectionItemReference
     | CollectionIndexReference
@@ -258,22 +320,6 @@ export type CollectionIndex = {
   seo?: Seo;
 };
 
-export type SanityImageCrop = {
-  _type: "sanity.imageCrop";
-  top: number;
-  bottom: number;
-  left: number;
-  right: number;
-};
-
-export type SanityImageHotspot = {
-  _type: "sanity.imageHotspot";
-  x: number;
-  y: number;
-  height: number;
-  width: number;
-};
-
 export type SanityFileAssetReference = {
   _ref: string;
   _type: "reference";
@@ -314,6 +360,11 @@ export type CollectionItem = {
     {
       _key: string;
     } & TagReference
+  >;
+  relatedItems?: Array<
+    {
+      _key: string;
+    } & CollectionItemReference
   >;
   longDescription?: Array<{
     children?: Array<{
@@ -358,6 +409,41 @@ export type Event = {
   };
   bookingUrl?: string;
   sector: "generic" | "museum" | "library";
+  seo?: Seo;
+};
+
+export type LegalPage = {
+  _id: string;
+  _type: "legalPage";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  language?: string;
+  title: string;
+  slug: Slug;
+  body: Array<{
+    children?: Array<{
+      marks?: Array<string>;
+      text?: string;
+      _type: "span";
+      _key: string;
+    }>;
+    style?: "normal" | "h2" | "h3";
+    listItem?: "bullet" | "number";
+    markDefs?: Array<{
+      href: string;
+      _type: "link";
+      _key: string;
+    }>;
+    level?: number;
+    _type: "block";
+    _key: string;
+  }>;
+  pdf?: {
+    asset?: SanityFileAssetReference;
+    media?: unknown;
+    _type: "file";
+  };
   seo?: Seo;
 };
 
@@ -511,7 +597,12 @@ export type AllSanitySchemaTypes =
   | PageReference
   | CollectionIndexReference
   | EventReference
+  | LegalPageReference
   | NavLink
+  | HomeHeroItem
+  | HomeHero
+  | SanityImageCrop
+  | SanityImageHotspot
   | EventList
   | CollectionItemReference
   | CollectionHighlight
@@ -529,11 +620,10 @@ export type AllSanitySchemaTypes =
   | Header
   | Tag
   | CollectionIndex
-  | SanityImageCrop
-  | SanityImageHotspot
   | SanityFileAssetReference
   | CollectionItem
   | Event
+  | LegalPage
   | Page
   | Slug
   | SanityImagePaletteSwatch
@@ -551,8 +641,8 @@ export type AllSanitySchemaTypes =
 export type HEADER_NAVIGATION_QUERY_RESULT = Array<{
   label: string;
   linkType: "external" | "internal";
-  url: string;
-  slug: string;
+  url: string | null;
+  slug: string | null;
 }> | null;
 
 // Source: ../web/src/lib/queries.ts
@@ -563,14 +653,14 @@ export type FOOTER_QUERY_RESULT = {
   legalLinks: Array<{
     label: string;
     linkType: "external" | "internal";
-    url: string;
-    slug: string;
+    url: string | null;
+    slug: string | null;
   }> | null;
   navigation: Array<{
     label: string;
     linkType: "external" | "internal";
-    url: string;
-    slug: string;
+    url: string | null;
+    slug: string | null;
   }> | null;
 } | null;
 
@@ -581,7 +671,7 @@ export type COLLECTION_ITEM_SLUGS_QUERY_RESULT = Array<string>;
 
 // Source: ../web/src/lib/queries.ts
 // Variable: COLLECTION_ITEM_QUERY
-// Query: *[_type == "collectionItem" && language == $language && slug.current == $slug][0]{    title,    date,    author,    longDescription,    "images": images[]{alt, "url": coalesce(asset->url, "")},    "audioFiles": audioFiles[]{title, "url": coalesce(asset->url, "")}  }
+// Query: *[_type == "collectionItem" && language == $language && slug.current == $slug][0]{    title,    date,    author,    longDescription,    "relatedItems": relatedItems[]->{title, "slug": slug.current, shortDescription},    "images": images[]{alt, "url": coalesce(asset->url, "")},    "audioFiles": audioFiles[]{title, "url": coalesce(asset->url, "")}  }
 export type COLLECTION_ITEM_QUERY_RESULT = {
   title: string;
   date: string | null;
@@ -603,6 +693,11 @@ export type COLLECTION_ITEM_QUERY_RESULT = {
     level?: number;
     _type: "block";
     _key: string;
+  }> | null;
+  relatedItems: Array<{
+    title: string;
+    slug: string;
+    shortDescription: string;
   }> | null;
   images: Array<{
     alt: string;
@@ -684,8 +779,8 @@ export type PAGE_QUERY_RESULT = {
         _type: "ctaButton";
         label: string;
         linkType: "external" | "internal";
-        url: string;
-        slug: string;
+        url: string | null;
+        slug: string | null;
       }
     | {
         _key: string;
@@ -725,18 +820,54 @@ export type PAGE_QUERY_RESULT = {
   > | null;
 } | null;
 
+// Source: ../web/src/lib/queries.ts
+// Variable: LEGAL_PAGE_PATHS_QUERY
+// Query: *[_type == "legalPage" && language in $languages && defined(slug.current)]{    language,    "slug": slug.current  }
+export type LEGAL_PAGE_PATHS_QUERY_RESULT = Array<{
+  language: string | null;
+  slug: string;
+}>;
+
+// Source: ../web/src/lib/queries.ts
+// Variable: LEGAL_PAGE_QUERY
+// Query: *[_type == "legalPage" && language == $language && slug.current == $slug][0]{    title,    body,    "pdfUrl": pdf.asset->url  }
+export type LEGAL_PAGE_QUERY_RESULT = {
+  title: string;
+  body: Array<{
+    children?: Array<{
+      marks?: Array<string>;
+      text?: string;
+      _type: "span";
+      _key: string;
+    }>;
+    style?: "h2" | "h3" | "normal";
+    listItem?: "bullet" | "number";
+    markDefs?: Array<{
+      href: string;
+      _type: "link";
+      _key: string;
+    }>;
+    level?: number;
+    _type: "block";
+    _key: string;
+  }>;
+  pdfUrl: string | null;
+} | null;
+
 // Query TypeMap
 declare global {
   interface SanityQueries {
     '\n  *[_type == "header" && language == $language][0].navigation[]{\n    label,\n    linkType,\n    url,\n    "slug": internal->slug.current\n  }\n': HEADER_NAVIGATION_QUERY_RESULT;
     '\n  *[_type == "footer" && language == $language][0]{\n    address,\n    "legalLinks": legalLinks[]{label, linkType, url, "slug": internal->slug.current},\n    "navigation": *[_type == "header" && language == $language][0].navigation[]{\n      label, linkType, url, "slug": internal->slug.current\n    }\n  }\n': FOOTER_QUERY_RESULT;
     '\n  *[_type == "collectionItem" && language == $language && defined(slug.current)].slug.current\n': COLLECTION_ITEM_SLUGS_QUERY_RESULT;
-    '\n  *[_type == "collectionItem" && language == $language && slug.current == $slug][0]{\n    title,\n    date,\n    author,\n    longDescription,\n    "images": images[]{alt, "url": coalesce(asset->url, "")},\n    "audioFiles": audioFiles[]{title, "url": coalesce(asset->url, "")}\n  }\n': COLLECTION_ITEM_QUERY_RESULT;
+    '\n  *[_type == "collectionItem" && language == $language && slug.current == $slug][0]{\n    title,\n    date,\n    author,\n    longDescription,\n    "relatedItems": relatedItems[]->{title, "slug": slug.current, shortDescription},\n    "images": images[]{alt, "url": coalesce(asset->url, "")},\n    "audioFiles": audioFiles[]{title, "url": coalesce(asset->url, "")}\n  }\n': COLLECTION_ITEM_QUERY_RESULT;
     '\n  *[_type == "collectionIndex" && language == $language][0]{title, intro}\n': COLLECTION_INDEX_QUERY_RESULT;
     '\n  *[_type == "collectionItem" && language == $language && defined(slug.current)] | order(title asc){\n    title,\n    "slug": slug.current,\n    shortDescription,\n    date,\n    author,\n    "tags": tags[]->{title, "slug": slug.current},\n    "image": images[0]{alt, "url": coalesce(asset->url, "")}\n  }\n': COLLECTION_ITEMS_QUERY_RESULT;
     '\n  *[_type == "page" && language in $languages && defined(slug.current) && !(slug.current in ["collection", "home"])]{\n    language,\n    "slug": slug.current\n  }\n': PAGE_PATHS_QUERY_RESULT;
     '\n  *[_type == "page" && language in $languages && slug.current == "home"].language\n': HOME_LANGUAGES_QUERY_RESULT;
     '\n  *[_type == "page" && language == $language && slug.current == $slug][0]{\n    title,\n    sector,\n    "hero": hero{alt, "url": coalesce(asset->url, "")},\n    content[]{\n      _key,\n      _type,\n      _type == "richText" => {body},\n      _type == "imageBlock" => {caption, "image": image{alt, "url": coalesce(asset->url, "")}},\n      _type == "callout" => {heading, text, "image": image{alt, "url": coalesce(asset->url, "")}},\n      _type == "ctaButton" => {label, linkType, url, "slug": internal->slug.current}\n    }\n  }\n': PAGE_QUERY_RESULT;
+    '\n  *[_type == "legalPage" && language in $languages && defined(slug.current)]{\n    language,\n    "slug": slug.current\n  }\n': LEGAL_PAGE_PATHS_QUERY_RESULT;
+    '\n  *[_type == "legalPage" && language == $language && slug.current == $slug][0]{\n    title,\n    body,\n    "pdfUrl": pdf.asset->url\n  }\n': LEGAL_PAGE_QUERY_RESULT;
   }
 }
 // Lets @sanity/client releases that predate the global registry read it too

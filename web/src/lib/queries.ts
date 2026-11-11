@@ -33,6 +33,7 @@ export const COLLECTION_ITEM_QUERY = defineQuery(`
     date,
     author,
     longDescription,
+    "relatedItems": relatedItems[]->{title, "slug": slug.current, shortDescription},
     "images": images[]{alt, "url": coalesce(asset->url, "")},
     "audioFiles": audioFiles[]{title, "url": coalesce(asset->url, "")}
   }
@@ -87,5 +88,21 @@ export const PAGE_QUERY = defineQuery(`
       _type == "callout" => {heading, text, "image": image{alt, "url": coalesce(asset->url, "")}},
       _type == "ctaButton" => {label, linkType, url, "slug": internal->slug.current}
     }
+  }
+`)
+
+// Legal pages are served at /{language}/{slug}, next to the page documents. Their slugs must not clash.
+export const LEGAL_PAGE_PATHS_QUERY = defineQuery(`
+  *[_type == "legalPage" && language in $languages && defined(slug.current)]{
+    language,
+    "slug": slug.current
+  }
+`)
+
+export const LEGAL_PAGE_QUERY = defineQuery(`
+  *[_type == "legalPage" && language == $language && slug.current == $slug][0]{
+    title,
+    body,
+    "pdfUrl": pdf.asset->url
   }
 `)
