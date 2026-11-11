@@ -20,21 +20,29 @@ export const navLink = defineType({
       initialValue: 'internal',
       validation: (rule) => rule.required(),
     }),
-    // Hidden fields are not validated, so each is only required when it is shown.
+    // The CLI validator ignores `hidden`, so each field is made required only for its own link type.
     defineField({
       name: 'internal',
       title: 'Page',
       type: 'reference',
       to: [{type: 'page'}, {type: 'collectionIndex'}, {type: 'event'}],
       hidden: ({parent}) => parent?.linkType !== 'internal',
-      validation: (rule) => rule.required(),
+      validation: (rule) =>
+        rule.custom((value, {parent}) =>
+          (parent as {linkType?: string})?.linkType === 'internal' && !value ? 'Required' : true,
+        ),
     }),
     defineField({
       name: 'url',
       title: 'URL',
       type: 'url',
       hidden: ({parent}) => parent?.linkType !== 'external',
-      validation: (rule) => rule.required().uri({scheme: ['http', 'https']}),
+      validation: (rule) =>
+        rule
+          .uri({scheme: ['http', 'https']})
+          .custom((value, {parent}) =>
+            (parent as {linkType?: string})?.linkType === 'external' && !value ? 'Required' : true,
+          ),
     }),
   ],
   preview: {
